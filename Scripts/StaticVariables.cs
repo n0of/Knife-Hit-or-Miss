@@ -7,5 +7,7 @@
     public static string LogObjectName { get; } = "Log";
     public static string LevelObjectName { get; } = "Level";
     public static string AppleObjectName { get; } = "Apple";
+    public static string PlayerPrefStage { get; } = "Stage";
+    public static string PlayerPrefApple { get; } = "Apple";
     public static string GetKunaiName(int id) => $"Kunai{id}";
 }

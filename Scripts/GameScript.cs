@@ -38,7 +38,14 @@ public class GameScript : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Fin! Current level is {gameState.Stage}, apples hit {gameState.Apples}");
+            var apples = PlayerPrefs.HasKey(StaticVariables.PlayerPrefApple) ? PlayerPrefs.GetInt(StaticVariables.PlayerPrefApple) : 0;
+            var recordStage = PlayerPrefs.HasKey(StaticVariables.PlayerPrefStage) ? PlayerPrefs.GetInt(StaticVariables.PlayerPrefStage) : 0;
+            if (gameState.Stage > recordStage)
+            {
+                PlayerPrefs.SetInt(StaticVariables.PlayerPrefStage, gameState.Stage);
+                Debug.Log("New record!");
+            }
+            Debug.Log($"Fin! Current level is {gameState.Stage}, apples hit {apples}");
             gameState.Stage = 0;
         }
         if (_currentLevel != null)
@@ -66,5 +73,4 @@ public class GameState
     public float ScreenHeight { get; }
     public Vector3 StartKunaiPosition { get; }
     public int Stage { get; set; } = -1;
-    public int Apples { get; set; }
 }

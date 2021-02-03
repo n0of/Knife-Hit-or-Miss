@@ -26,19 +26,35 @@ public class LevelScript : MonoBehaviour
         initedLogObject.transform.parent = transform;
         initedLogObject.transform.localScale -= new Vector3(_gameScript.gameState.Scale, _gameScript.gameState.Scale, _gameScript.gameState.Scale);
         var random = new System.Random();
-        for (var i = 0; i < random.Next(StaticVariables.MaxInitStuck + 1); i++)
+        var initKunaisCount = random.Next(StaticVariables.MaxInitStuck + 1);
+        var owo = ((float)random.Next(99) + 1) / 100 ;
+        var initAppleCount = appleScriptableObject.SpawnChance > owo ? 1 : 0;
+        var totalInitSpawns = initKunaisCount + initAppleCount;
+        var spawnPositions = new int[totalInitSpawns];
+        var marginForIntersect = 5;
+
+        for (var i = 0; i < totalInitSpawns; i++)
+        {
+            var angleStart = i * 360 / (totalInitSpawns);
+            var angleFin = (i + 1) * 360 / (totalInitSpawns);
+            var angle = random.Next(angleFin - 1) - angleStart;
+            angle = Mathf.Max(angle, angleStart + marginForIntersect);
+            angle = Mathf.Min(angle, angleFin - marginForIntersect);
+            spawnPositions[i] = angle;
+        }
+
+        for (var i = 0; i < initKunaisCount; i++)
         {
             var initStuckKunai = CreateKunai(initStuckKunaiPosition);
-            initStuckKunai.transform.RotateAround(initedLogObject.transform.position, initStuckKunai.transform.forward, random.Next(359));
+            initStuckKunai.transform.RotateAround(initedLogObject.transform.position, initStuckKunai.transform.forward, spawnPositions[i]);
             initStuckKunai.SendMessage("Stuck", initedLogObject.transform);
         }
-        var appleSpawn = ((float)random.Next(99) + 1) / 100;
-        if (appleScriptableObject.SpawnChance >= appleSpawn)
+        if (initAppleCount == 1)
         {
             var initApplePosition = logPosition;
             var appleHeight = appleObject.GetComponent<SpriteRenderer>().bounds.size.y * (_gameScript.gameState.Scale + 1);
             initApplePosition.Set(initApplePosition.x, initApplePosition.y - _gameScript.gameState.LogHeight / 2 - appleHeight, initApplePosition.z);
-            var angle = random.Next(359);
+            var angle = spawnPositions[totalInitSpawns - 1];
             _spawnedApple = Instantiate(appleObject, initApplePosition, Quaternion.identity);
             _spawnedApple.transform.Rotate(new Vector3(0, 0, 180));
             _spawnedApple.name = StaticVariables.AppleObjectName;
@@ -64,7 +80,14 @@ public class LevelScript : MonoBehaviour
             Destroy(_spawnedApple);
             _spawnedApple = null;
         }
-        _gameScript.gameState.Apples++;
+        if (PlayerPrefs.HasKey(StaticVariables.PlayerPrefApple))
+        {
+            PlayerPrefs.SetInt(StaticVariables.PlayerPrefApple, PlayerPrefs.GetInt(StaticVariables.PlayerPrefApple) + 1);
+        }
+        else
+        {
+            PlayerPrefs.SetInt(StaticVariables.PlayerPrefApple, 1);
+        }
     }
 
     public void Stuck()
